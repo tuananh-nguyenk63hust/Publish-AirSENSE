@@ -1,5 +1,5 @@
 // Code by Tuan Anh Nguyen
-//Syntax use C++11
+// Code is build with C++11
 
 #include<mqtt/client.h>
 #include<bits/stdc++.h>
