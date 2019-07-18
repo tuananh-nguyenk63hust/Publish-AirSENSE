@@ -215,6 +215,6 @@ int main(int argc, char* argv[])
 
 -----------
 
-###Json Library for adruino: https://github.com/bblanchon/ArduinoJson
+### Json Library for Arduino: https://github.com/bblanchon/ArduinoJson
 
-###Mqtt Library for ESP8266: https://github.com/tuanpmt/esp_mqtt
+### MQTT Library for ESP8266: https://github.com/tuanpmt/esp_mqtt
