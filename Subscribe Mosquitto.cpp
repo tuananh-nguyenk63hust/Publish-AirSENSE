@@ -1,5 +1,5 @@
 //Code by Tuan Anh Nguyen
-//Systax use C++11
+//Code is build with C++11
 
 #include<bits/stdc++.h>
 #include<mqtt/async_client.h>
