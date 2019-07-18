@@ -214,16 +214,5 @@ int main(int argc, char* argv[])
 
 -----------
 
-The original API organization and documentation were adapted from:
-
-The Paho Java library
-by Dave Locke.
-Copyright (c) 2012, IBM Corp
-
- All rights reserved. This program and the accompanying materials
- are made available under the terms of the Eclipse Public License v1.0
- which accompanies this distribution, and is available at
- http://www.eclipse.org/legal/epl-v10.html
-
------------
-
+###Json for adruino: https://github.com/bblanchon/ArduinoJson
+###Mqtt for ESP8266: https://github.com/tuanpmt/esp_mqtt
