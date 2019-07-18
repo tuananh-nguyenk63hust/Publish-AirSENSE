@@ -2,8 +2,8 @@ Source code made by Tuan Anh Nguyen, SPARCLab HUST
 Install library for Json ( Jsoncpp )
 * Ubuntu: 
     Open Terminal:
-        +) sudo apt-get update
-        +) sudo apt-get install libjsoncpp-dev
+       * sudo apt-get update
+       * sudo apt-get install libjsoncpp-dev
     When complie, add -ljsoncpp.
 * Windows: https://github.com/open-source-parsers/jsoncpp
 
