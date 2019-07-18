@@ -1,6 +1,7 @@
 Source code made by Tuan Anh Nguyen, SPARCLab HUST
 ***Install library for Json ( Jsoncpp )
-*Ubuntu: 
+
+* Ubuntu: 
     Open Terminal:
        
        * sudo apt-get update
@@ -9,7 +10,7 @@ Source code made by Tuan Anh Nguyen, SPARCLab HUST
        
     When complie, add -ljsoncpp.
     
-*Windows:  https://github.com/open-source-parsers/jsoncpp
+* Windows:  https://github.com/open-source-parsers/jsoncpp
 
 ***Install library paho.mqtt.cpp:
   ### Unix and Linux
