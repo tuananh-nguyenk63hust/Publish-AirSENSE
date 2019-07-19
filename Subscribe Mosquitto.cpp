@@ -5,14 +5,15 @@
 #include<mqtt/async_client.h>
 #include<jsoncpp/json/json.h>
 #include<fstream>
+#include<ctime>
 //using namespace std;
-const std::string file="/home/sparc/airsense/Test1.csv"; // save raw data file edit time when receive data 
 const std::string ADDRESS="tcp://localhost:1883"; //address server
 const int QOS=0; // this's qos client subscribe
 const std::string ID="Airsense"; // This's name of client subscribe mosquitto 
 const std::string TOPIC="SPARC"; // This's name of topic client subscribe 
 const int num_of_reconnect=5;  // this's number when try connect
-
+std::string file="/home/sparclab/Desktop/"; // save raw data file edit time when receive data 
+char *NameFile=new char[30];
 class action_listener: public virtual mqtt::iaction_listener  // this listener when connect
 {
     std::string namen;
@@ -24,6 +25,13 @@ bool checkFile(std::string path)
 {
     std::ifstream fi(path);
     return fi.good();
+}
+void coverttime(long long& Time)
+{
+    time_t ttime= Time;
+    tm * CoverTimee;
+    CoverTimee=localtime(&ttime);
+    strftime(NameFile,30,"%H-%d-%B-%Y.csv",CoverTimee);
 }
  class callback: public virtual mqtt::callback, public virtual mqtt::iaction_listener //callback when connect and subscribe
 {
@@ -89,8 +97,21 @@ bool checkFile(std::string path)
         float Hum=MessageData["DATA"]["HUM"].asFloat();
         float Tem=MessageData["DATA"]["TEM"].asFloat();
         float Co=MessageData["DATA"]["CO"].asFloat();
-        float Time=MessageData["DATA"]["REALTIMES"].asFloat();
+        long long Time=MessageData["DATA"]["REALTIMES"].asInt64();
+        //std::cout<<Time<<std::endl;
         //cout<<checkFile(file)<<endl; //checkfile empty
+        coverttime(Time);
+        std::cout<<NameFile<<std::endl;
+        std::string LastFile=file;
+        for (int i=0;i<=29;i++) 
+        {
+            file+=NameFile[i];
+           *(NameFile +i) = ' ';
+        }
+       // NameFile="";
+        //NameFile[3]=''
+        //delete[] NameFile;
+        std::cout<<file<<std::endl;
         bool BcheckFile=checkFile(file);
         std::ofstream fo(file,std::ios::app);
         if (BcheckFile==false) 
@@ -98,8 +119,11 @@ bool checkFile(std::string path)
             std::cout<<"Create File!"<<std::endl;
             fo<<"ID\tREALTIMES\tPM2.5\tPM10\tPM1\tCO\tHUM\tTEM\n";
         } 
-        fo<<ID_Cli<<"\t"<<Time<<"\t"<<Pm2p5<<"\t"<<Pm10<<"\t"<<Pm1<<"\t"<<Co<<"\t"<<Hum<<"\t"<<Tem<<"\n";
 
+        fo<<ID_Cli<<"\t"<<Time<<"\t"<<Pm2p5<<"\t"<<Pm10<<"\t"<<Pm1<<"\t"<<Co<<"\t"<<Hum<<"\t"<<Tem<<"\n";
+        file=LastFile;
+        //char * NameFile=new char[23];
+        
     }
 public: callback(mqtt::async_client& cli, mqtt::connect_options& cOn): num(0),cli_(cli), Conn(cOn), listener("sublistener") {}
 };
@@ -112,6 +136,6 @@ int main()
     callback cb(cli,conn);
     cli.set_callback(cb);
     cli.connect(conn,nullptr,cb);
-//    while (tolower(std::cin.get())!='q');
+    while (tolower(std::cin.get())!='q');
     
 }
