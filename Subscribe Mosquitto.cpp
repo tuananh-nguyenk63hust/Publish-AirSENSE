@@ -14,6 +14,7 @@ const std::string TOPIC="SPARC"; // This's name of topic client subscribe
 const int num_of_reconnect=5;  // this's number when try connect
 std::string file="/home/sparclab/Desktop/"; // save raw data file edit time when receive data 
 char *NameFile=new char[30];
+//std::string NameFile="";
 class action_listener: public virtual mqtt::iaction_listener  // this listener when connect
 {
     std::string namen;
@@ -24,6 +25,7 @@ public: action_listener(const std::string& name): namen(name){}
 bool checkFile(std::string path)
 {
     std::ifstream fi(path);
+    std::cout<<"ok"<<std::endl;
     return fi.good();
 }
 void coverttime(long long& Time)
@@ -31,7 +33,15 @@ void coverttime(long long& Time)
     time_t ttime= Time;
     tm * CoverTimee;
     CoverTimee=localtime(&ttime);
-    strftime(NameFile,30,"%H-%d-%B-%Y.csv",CoverTimee);
+    char *NameFile1=new char[29];
+   // for (int i=0;i<=32;i++) NameFile1[i]="";
+    strftime(NameFile,29,"%H-%M-%d-%B-%Y.csv",CoverTimee);
+   // NameFile="";
+   // std::cout<<NameFile1<<std::endl;
+   
+   
+   
+   // std::cout<<NameFile<<std::endl;
 }
  class callback: public virtual mqtt::callback, public virtual mqtt::iaction_listener //callback when connect and subscribe
 {
@@ -103,11 +113,13 @@ void coverttime(long long& Time)
         coverttime(Time);
         std::cout<<NameFile<<std::endl;
         std::string LastFile=file;
-        for (int i=0;i<=29;i++) 
+        for (int i=0;i<=32;i++) if ((i!=2)&&(i!=3)&&(i!=4)) 
         {
             file+=NameFile[i];
            *(NameFile +i) = ' ';
+
         }
+        //file+=NameFile;
        // NameFile="";
         //NameFile[3]=''
         //delete[] NameFile;
