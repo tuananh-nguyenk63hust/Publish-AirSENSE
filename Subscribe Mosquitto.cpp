@@ -12,9 +12,27 @@ const int QOS=0; // this's qos client subscribe
 const std::string ID="Airsense"; // This's name of client subscribe mosquitto 
 const std::string TOPIC="SPARC"; // This's name of topic client subscribe 
 const int num_of_reconnect=5;  // this's number when try connect
-std::string file="/home/sparclab/Desktop/"; // save raw data file edit time when receive data 
-char *NameFile=new char[30];
-//std::string NameFile="";
+//const std::string moth["January","February","March","April","May","June","July","August","September","October","November","December"]={'01','02'.'03','04','05','06','07','08','09','10','11','12'};
+std::string file="/home/banhbanh/Desktop/"; // save raw data file edit time when receive data 
+//char *NameFile=new char[30];
+
+std::string ConvertMonthToInt(std::string s)
+{
+    std::string res;
+    if (s=="January") res="01";
+    if (s=="February") res="02";
+    if (s=="March") res="03";
+    if (s=="April") res="04";
+    if (s=="May") res="05";
+    if (s=="June") res="06";
+    if (s=="July") res="07";
+    if (s=="August") res="08";
+    if (s=="September") res="09";
+    if (s=="October") res="10";
+    if (s=="November") res="11";
+    if (s=="December") res="12";
+    return res;
+}
 class action_listener: public virtual mqtt::iaction_listener  // this listener when connect
 {
     std::string namen;
@@ -28,20 +46,31 @@ bool checkFile(std::string path)
     std::cout<<"ok"<<std::endl;
     return fi.good();
 }
-void coverttime(long long& Time)
+std::string coverttime(long long& Time)
 {
+    putenv("TZ=Asia/Ho_Chi_Minh");
     time_t ttime= Time;
+    std::string NameFile="";
     tm * CoverTimee;
     CoverTimee=localtime(&ttime);
-    char *NameFile1=new char[29];
+    char *NameYear=new char[29];
    // for (int i=0;i<=32;i++) NameFile1[i]="";
-    strftime(NameFile,29,"%H-%M-%d-%B-%Y.csv",CoverTimee);
-   // NameFile="";
-   // std::cout<<NameFile1<<std::endl;
-   
-   
-   
-   // std::cout<<NameFile<<std::endl;
+    strftime(NameYear,29,"%Y",CoverTimee);
+    //std::cout<<NameYear<<std::endl;
+    char *NameMoth=new char[10];
+    strftime(NameMoth,10,"%B",CoverTimee);
+    char *NameDay=new char[5];
+    strftime(NameDay,5,"%d",CoverTimee);
+    char *NameHours=new char[5];
+    strftime(NameHours,5,"%H",CoverTimee);
+    //NameFile+=NameMoth;
+    std::string STR_NameMoth=ConvertMonthToInt(NameMoth);    
+    //std::cout<<STR_NameMoth<<std::endl;
+    NameFile=NameYear+STR_NameMoth+NameDay+NameHours+".csv";
+    //NameFile=NameHours;
+    std::cout<<NameFile<<std::endl;
+    return NameFile;
+
 }
  class callback: public virtual mqtt::callback, public virtual mqtt::iaction_listener //callback when connect and subscribe
 {
@@ -108,21 +137,12 @@ void coverttime(long long& Time)
         float Tem=MessageData["DATA"]["TEM"].asFloat();
         float Co=MessageData["DATA"]["CO"].asFloat();
         long long Time=MessageData["DATA"]["REALTIMES"].asInt64();
+        //Time=time(nullptr);
         //std::cout<<Time<<std::endl;
-        //cout<<checkFile(file)<<endl; //checkfile empty
-        coverttime(Time);
-        std::cout<<NameFile<<std::endl;
         std::string LastFile=file;
-        for (int i=0;i<=32;i++) if ((i!=2)&&(i!=3)&&(i!=4)) 
-        {
-            file+=NameFile[i];
-           *(NameFile +i) = ' ';
-
-        }
-        //file+=NameFile;
-       // NameFile="";
-        //NameFile[3]=''
-        //delete[] NameFile;
+        std::string namefile=coverttime(Time);
+       // std::cout<<namefile<<std::endl;
+        file+=namefile;
         std::cout<<file<<std::endl;
         bool BcheckFile=checkFile(file);
         std::ofstream fo(file,std::ios::app);
