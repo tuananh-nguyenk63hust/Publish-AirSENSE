@@ -29,7 +29,8 @@ int main()
     PAYLOAD["DATA"]["CO"]=a[6];
   //  PAYLOAD["DATA"]["CREATE TIME"]="23h25";
    // PAYLOAD["DATA"]["END TIME"]="24h";
-   PAYLOAD["DATA"]["REALTIMES"]=696996;
+    long long realtimes=312443222;
+   PAYLOAD["DATA"]["REALTIMES"]=realtimes;
     //mqtt::message mess=mqtt::message();
     string PAYLOAD1="OK";
    /* mqtt::message_ptr mess=mqtt::make_message(TOPIC,PAYLOAD.toStyledString());
