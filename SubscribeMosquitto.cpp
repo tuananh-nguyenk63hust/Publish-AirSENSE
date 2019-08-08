@@ -6,7 +6,7 @@
 #include<jsoncpp/json/json.h>
 #include<fstream>
 #include<ctime>
-#include<mysql/mysql.h>
+//#include<mysql/mysql.h>
 #include<mysql_connection.h>
 #include<cppconn/prepared_statement.h>
 #include<cppconn/driver.h>
@@ -16,15 +16,15 @@
 //using namespace std;
 const std::string ADDRESS="tcp://localhost:1883"; //address server
 const int QOS=0; // this's qos client subscribe
-const std::string ID="Airsense"; // This's name of client subscribe mosquitto 
+const std::string ID="AirsenseDB"; // This's name of client subscribe mosquitto 
 const std::string TOPIC="SPARC"; // This's name of topic client subscribe 
 const int num_of_reconnect=5;  // this's number when try connect
 //const std::string moth["January","February","March","April","May","June","July","August","September","October","November","December"]={'01','02'.'03','04','05','06','07','08','09','10','11','12'};
 std::string file="/home/banhbanh/Desktop/"; // save raw data file edit time when receive data 
 //char *NameFile=new char[30];
 const std::string HOST="tcp://localhost";
-const std::string USER="sparclab1";
-const std::string PASS="sparclab1";
+const std::string USER="root";
+const std::string PASS="SPARCLab1";
 sql::Driver *driver;
 sql::Connection *Conn;
 sql::Statement *sta;
@@ -88,14 +88,14 @@ bool checkretain(std::string ttime,std::string iid)
     std::string timelate="";
     std::string IDLate="";
     //std::cout<<"ok"<<std::endl;
-    preSta=Conn->prepareStatement("SELECT * FROM data");
+    preSta=Conn->prepareStatement("SELECT * FROM Data");
     res=preSta->executeQuery();
     res->afterLast();
     //std::cout<<"ok"<<std::endl;
     while(res->previous())
     {
-        timelate=res->getString("TIME");
-        IDLate=res->getString("ID");
+        timelate=res->getString("Time");
+        IDLate=res->getString("NodeId");
         break;
     }
     std::cout<<timelate<<std::endl;
@@ -126,16 +126,24 @@ void DBReceive(Json::Value JsonData)
         //std::cout<<checkretain(timeconvert)<<std::endl;
         //if (checkretain(timeconvert)) std::cout<<"Don't accept to DB"<<std::endl;
         std::cout<<"Accept To DB"<<std::endl;
-        preSta=Conn->prepareStatement("INSERT INTO data(ID,TIME,PM2p5,PM10,PM1,HUM,TEM,CO) VALUES(?,?,?,?,?,?,?,?)");
+        preSta=Conn->prepareStatement("INSERT INTO Data(NodeId,Time,PM2p5,PM10,PM1,TEMPERATURE,HUMIDITY) VALUES(?,?,?,?,?,?,?)");
         preSta->setString(1,DBID);
         preSta->setDateTime(2,timeconvert);
         preSta->setDouble(3,PM2p5);
         preSta->setDouble(4,PM10);
         preSta->setDouble(5,PM1);
-        preSta->setDouble(6,HUM);
-        preSta->setDouble(7,TEM);
-        preSta->setDouble(8 ,CO);
+        preSta->setDouble(7,HUM);
+        preSta->setDouble(6,TEM);
+        //preSta->setDouble(8 ,CO);
         preSta->executeUpdate();
+        preSta=Conn->prepareStatement("INSERT INTO ExtendedData(NodeId,Time,CO,CO2,SO2,NO2,O3) VALUES(?,?,?,?,?,?,?)");
+        preSta->setString(1,DBID);
+        preSta->setDateTime(2,timeconvert);
+        preSta->setDouble(3,CO);
+        preSta->setDouble(4,0);
+        preSta->setDouble(5,0);
+        preSta->setDouble(6,0);
+        preSta->setDouble(7,0);
     }
     else std::cout<<"Don't Accept To DB"<<std::endl;
 
