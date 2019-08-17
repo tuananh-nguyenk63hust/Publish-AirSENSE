@@ -20,11 +20,11 @@ const std::string ID="AirsenseDB"; // This's name of client subscribe mosquitto
 const std::string TOPIC="SPARC"; // This's name of topic client subscribe 
 const int num_of_reconnect=5;  // this's number when try connect
 //const std::string moth["January","February","March","April","May","June","July","August","September","October","November","December"]={'01','02'.'03','04','05','06','07','08','09','10','11','12'};
-std::string file="/home/banhbanh/Desktop/"; // save raw data file edit time when receive data 
+//std::string file="/home/banhbanh/Desktop/"; // save raw data file edit time when receive data 
 //char *NameFile=new char[30];
 const std::string HOST="tcp://localhost";
-const std::string USER="root";
-const std::string PASS="SPARCLab1";
+const std::string USER="sparclab1";
+const std::string PASS="sparclab1";
 sql::Driver *driver;
 sql::Connection *Conn;
 sql::Statement *sta;
@@ -46,6 +46,27 @@ std::string ConvertMonthToInt(std::string s)
     if (s=="November") res="11";
     if (s=="December") res="12";
     return res;
+};
+bool CheckConnection()
+{
+    try
+    {
+        bool Connected=(Conn!=NULL)&&((Conn->isValid())||(Conn->reconnect()));
+        if (!Connected)
+        {
+            driver=get_driver_instance();
+            Conn=driver->connect(HOST,USER,PASS);
+            Connected=Conn->isValid();
+        }
+        else return true;
+        return false;
+    }
+    catch(sql::SQLException &e)
+    {
+        delete Conn;
+        Conn=NULL;
+        return false;
+    }
 }
 class action_listener: public virtual mqtt::iaction_listener  // this listener when connect
 {
@@ -117,35 +138,37 @@ void DBReceive(Json::Value JsonData)
     float CO=JsonData["DATA"]["CO"].asFloat();
     float TEM=JsonData["DATA"]["TEM"].asFloat();
     float HUM=JsonData["DATA"]["HUM"].asFloat();
-    driver=get_driver_instance();
-    Conn=driver->connect(HOST,USER,PASS);
-    Conn->setSchema("Airsense");
-    std::string timeconvert=coverttime(realtime);
-    if (checkretain(timeconvert,DBID))
+    //driver=get_driver_instance();
+    //Conn=driver->connect(HOST,USER,PASS);
+    if (CheckConnection())
     {
-        //std::cout<<checkretain(timeconvert)<<std::endl;
-        //if (checkretain(timeconvert)) std::cout<<"Don't accept to DB"<<std::endl;
-        std::cout<<"Accept To DB"<<std::endl;
-        preSta=Conn->prepareStatement("INSERT INTO Data(NodeId,Time,PM2p5,PM10,PM1,TEMPERATURE,HUMIDITY) VALUES(?,?,?,?,?,?,?)");
-        preSta->setString(1,DBID);
-        preSta->setDateTime(2,timeconvert);
-        preSta->setDouble(3,PM2p5);
-        preSta->setDouble(4,PM10);
-        preSta->setDouble(5,PM1);
-        preSta->setDouble(7,HUM);
-        preSta->setDouble(6,TEM);
-        //preSta->setDouble(8 ,CO);
-        preSta->executeUpdate();
-        preSta=Conn->prepareStatement("INSERT INTO ExtendedData(NodeId,Time,CO,CO2,SO2,NO2,O3) VALUES(?,?,?,?,?,?,?)");
-        preSta->setString(1,DBID);
-        preSta->setDateTime(2,timeconvert);
-        preSta->setDouble(3,CO);
-        preSta->setDouble(4,0);
-        preSta->setDouble(5,0);
-        preSta->setDouble(6,0);
-        preSta->setDouble(7,0);
+        std::cout<<Conn<<std::endl;
+        Conn->setSchema("Airsense");
+        std::string timeconvert=coverttime(realtime);
+        if (checkretain(timeconvert,DBID))
+        {
+            std::cout<<"Accept To DB"<<std::endl;
+            preSta=Conn->prepareStatement("INSERT INTO Data(NodeId,Time,PM2p5,PM10,PM1,TEMPERATURE,HUMIDITY) VALUES(?,?,?,?,?,?,?)");
+            preSta->setString(1,DBID);
+            preSta->setDateTime(2,timeconvert);
+            preSta->setDouble(3,PM2p5);
+            preSta->setDouble(4,PM10);
+            preSta->setDouble(5,PM1);
+            preSta->setDouble(7,HUM);
+            preSta->setDouble(6,TEM);
+            //preSta->setDouble(8 ,CO);
+            preSta->executeUpdate();
+            preSta=Conn->prepareStatement("INSERT INTO ExtendedData(NodeId,Time,CO,CO2,SO2,NO2,O3) VALUES(?,?,?,?,?,?,?)");
+            preSta->setString(1,DBID);
+            preSta->setDateTime(2,timeconvert);
+            preSta->setDouble(3,CO);
+            preSta->setDouble(4,0);
+            preSta->setDouble(5,0);
+            preSta->setDouble(6,0);
+            preSta->setDouble(7,0);
+        }
+        else std::cout<<"Don't Accept To DB"<<std::endl;
     }
-    else std::cout<<"Don't Accept To DB"<<std::endl;
 
 }
  class callback: public virtual mqtt::callback, public virtual mqtt::iaction_listener //callback when connect and subscribe
