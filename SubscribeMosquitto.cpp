@@ -89,7 +89,7 @@ void DBReceive(Json::Value JsonData)
         Conn->setSchema("Airsense");
        // std::string timeconvert=coverttime(realtime);
             std::cout<<"INSERT INTO DB"<<std::endl;
-            preSta=Conn->prepareStatement("INSERT INTO Data(NodeId,Time,PM2p5,PM10,PM1,TEMPERATURE,HUMIDITY) VALUES(?,?,?,?,?,?,?)");
+            preSta=Conn->prepareStatement("INSERT INTO Data(NodeId,Time,PM2p5,PM10,PM1,Temperature,Humidity) VALUES(?,?,?,?,?,?,?)");
             preSta->setInt64(1,NodeId);
             preSta->setInt(2,realtime);
             preSta->setDouble(3,PM2p5);
@@ -98,15 +98,16 @@ void DBReceive(Json::Value JsonData)
             preSta->setDouble(7,HUM);
             preSta->setDouble(6,TEM);
             //preSta->setDouble(8 ,CO);
-            preSta->executeUpdate();
+            
             preSta=Conn->prepareStatement("INSERT INTO ExtendedData(NodeId,Time,CO,CO2,SO2,NO2,O3) VALUES(?,?,?,?,?,?,?)");
-            preSta->setString(1,DBID);
+            preSta->setInt64(1,NodeId);
             preSta->setInt(2,realtime);
             preSta->setDouble(3,CO);
             preSta->setDouble(4,0);
             preSta->setDouble(5,0);
             preSta->setDouble(6,0);
             preSta->setDouble(7,0);
+            preSta->executeUpdate();
     }
 
     
@@ -122,6 +123,10 @@ void DBReceive(Json::Value JsonData)
     catch(const sql::SQLException& e)
     {
         std::cerr<<"Error Logic SQL"<<std::endl;
+    }
+    catch(const sql::SQLUnsupportedOptionException& e)
+    {
+        std::cerr<<"The Option of Exception doesn't support"<<std::endl;
     }
 
 }
